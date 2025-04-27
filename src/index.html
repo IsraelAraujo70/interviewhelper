@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Helper</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Interview Helper</h1>
+            <div class="controls">
+                <button id="minimize-btn" title="Minimizar para bandeja">_</button>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="setup">Configuração</button>
+            <button class="tab-btn" data-tab="interview">Entrevista</button>
+        </div>
+
+        <!-- Aba de Configuração -->
+        <div class="tab-content active" id="setup">
+            <div class="settings-form">
+                <h2>Configurar aplicativo</h2>
+                
+                <div class="form-group">
+                    <label for="openai-key">API Key da OpenAI:</label>
+                    <input type="password" id="openai-key" placeholder="sk-...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="company-name">Nome da Empresa:</label>
+                    <input type="text" id="company-name" placeholder="Ex: Google">
+                </div>
+                
+                <div class="form-group">
+                    <label for="job-position">Cargo:</label>
+                    <input type="text" id="job-position" placeholder="Ex: Desenvolvedor Frontend">
+                </div>
+                
+                <div class="form-group">
+                    <label for="cv-text">Currículo (Resumo das Habilidades):</label>
+                    <textarea id="cv-text" rows="8" placeholder="Cole aqui um resumo do seu currículo ou das suas principais habilidades..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Dispositivos de Áudio:</label>
+                    <div class="audio-settings">
+                        <div>
+                            <label for="mic-select">Seu Microfone:</label>
+                            <select id="mic-select"></select>
+                        </div>
+                        <div>
+                            <label for="system-audio">Áudio do Sistema:</label>
+                            <select id="system-audio"></select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button id="test-audio">Testar Áudio</button>
+                    <button id="save-settings" class="primary-btn">Salvar Configurações</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aba de Entrevista -->
+        <div class="tab-content" id="interview">
+            <div class="interview-container">
+                <div class="status-info">
+                    <div class="status-item">
+                        <span class="status-label">Status:</span>
+                        <span id="status-text" class="status-value">Aguardando</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Empresa:</span>
+                        <span id="company-display" class="status-value">Não definido</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Cargo:</span>
+                        <span id="position-display" class="status-value">Não definido</span>
+                    </div>
+                    <div class="debug-toggle">
+                        <label for="debug-mode">Modo Debug:</label>
+                        <input type="checkbox" id="debug-mode" checked>
+                    </div>
+                </div>
+                
+                <div class="transcription-area">
+                    <h3>Transcrição da Entrevista</h3>
+                    <div id="transcription" class="transcription-content"></div>
+                </div>
+                
+                <div class="suggestions-area">
+                    <h3>Sugestões de Resposta</h3>
+                    <div id="ai-suggestions" class="suggestions-content"></div>
+                </div>
+                
+                <div class="controls">
+                    <button id="start-interview" class="primary-btn">Iniciar Entrevista</button>
+                    <button id="pause-interview" disabled>Pausar</button>
+                    <button id="stop-interview" disabled>Encerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/renderer.js"></script>
+</body>
+</html> 

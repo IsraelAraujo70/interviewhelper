@@ -1,0 +1,42 @@
+{
+  "name": "interviewhelper",
+  "version": "1.0.0",
+  "description": "Assistente de entrevistas de emprego com IA",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron . --no-sandbox",
+    "build": "electron-builder",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "entrevista",
+    "ia",
+    "assistente"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "electron-screen-recorder": "^0.0.3",
+    "electron-store": "^8.1.0",
+    "fluent-ffmpeg": "^2.1.2",
+    "node-audiorecorder": "^2.2.0",
+    "node-mic-record": "0.0.1",
+    "openai": "^4.20.0",
+    "speaker": "^0.5.4"
+  },
+  "devDependencies": {
+    "electron": "^25.8.4",
+    "electron-builder": "^24.6.4"
+  },
+  "build": {
+    "appId": "com.interviewhelper",
+    "productName": "Interview Helper",
+    "mac": {
+      "category": "public.app-category.utilities"
+    },
+    "win": {
+      "target": "nsis"
+    }
+  }
+}
