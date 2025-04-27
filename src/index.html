@@ -83,39 +83,35 @@
         <!-- Aba de Entrevista -->
         <div class="tab-content" id="interview">
             <div class="interview-container">
-                <div class="status-info">
-                    <div class="status-item">
-                        <span class="status-label">Status:</span>
-                        <span id="status-text" class="status-value">Aguardando</span>
+                <div class="status-bar">
+                    <div class="status-info">
+                        <div class="status-item">
+                            <span class="status-label">Status:</span>
+                            <span id="status-text" class="status-value">Aguardando</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Empresa:</span>
+                            <span id="company-display" class="status-value">Não definido</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Cargo:</span>
+                            <span id="position-display" class="status-value">Não definido</span>
+                        </div>
+                        <div class="debug-toggle">
+                            <label for="debug-mode">Modo Debug:</label>
+                            <input type="checkbox" id="debug-mode" checked>
+                        </div>
                     </div>
-                    <div class="status-item">
-                        <span class="status-label">Empresa:</span>
-                        <span id="company-display" class="status-value">Não definido</span>
-                    </div>
-                    <div class="status-item">
-                        <span class="status-label">Cargo:</span>
-                        <span id="position-display" class="status-value">Não definido</span>
-                    </div>
-                    <div class="debug-toggle">
-                        <label for="debug-mode">Modo Debug:</label>
-                        <input type="checkbox" id="debug-mode" checked>
+                    <div class="controls">
+                        <button id="start-interview" class="primary-btn">Iniciar Entrevista</button>
+                        <button id="pause-interview" disabled>Pausar</button>
+                        <button id="stop-interview" disabled>Encerrar</button>
                     </div>
                 </div>
                 
-                <div class="transcription-area">
-                    <h3>Transcrição da Entrevista</h3>
-                    <div id="transcription" class="transcription-content"></div>
-                </div>
-                
-                <div class="suggestions-area">
-                    <h3>Sugestões de Resposta</h3>
-                    <div id="ai-suggestions" class="suggestions-content"></div>
-                </div>
-                
-                <div class="controls">
-                    <button id="start-interview" class="primary-btn">Iniciar Entrevista</button>
-                    <button id="pause-interview" disabled>Pausar</button>
-                    <button id="stop-interview" disabled>Encerrar</button>
+                <div class="unified-chat-container">
+                    <h3>Conversa da Entrevista</h3>
+                    <div id="unified-chat" class="unified-chat-messages"></div>
                 </div>
             </div>
         </div>

@@ -15,8 +15,7 @@ const openaiKeyInput = document.getElementById('openai-key');
 const companyNameInput = document.getElementById('company-name');
 const jobPositionInput = document.getElementById('job-position');
 const cvTextArea = document.getElementById('cv-text');
-const transcriptionDiv = document.getElementById('transcription');
-const suggestionsDiv = document.getElementById('ai-suggestions');
+const unifiedChatDiv = document.getElementById('unified-chat');
 const statusText = document.getElementById('status-text');
 const companyDisplay = document.getElementById('company-display');
 const positionDisplay = document.getElementById('position-display');
@@ -122,8 +121,12 @@ function addTranscription(text, isUser = true) {
     const messageElement = document.createElement('p');
     messageElement.classList.add(isUser ? 'user-message' : 'interviewer-message');
     messageElement.innerHTML = `<strong>${isUser ? 'Você' : 'Entrevistador'}:</strong> ${text}`;
-    transcriptionDiv.appendChild(messageElement);
-    transcriptionDiv.scrollTop = transcriptionDiv.scrollHeight;
+    unifiedChatDiv.appendChild(messageElement);
+    
+    // Garantir que a rolagem automática funcione
+    setTimeout(() => {
+        unifiedChatDiv.scrollTop = unifiedChatDiv.scrollHeight;
+    }, 100);
     
     // Armazenar para contexto da IA
     transcription += `${isUser ? 'Candidato' : 'Entrevistador'}: ${text}\n`;
@@ -132,15 +135,19 @@ function addTranscription(text, isUser = true) {
 // Adicionar sugestão da IA
 function addSuggestion(text) {
     const suggestionElement = document.createElement('div');
-    suggestionElement.classList.add('suggestion');
+    suggestionElement.classList.add('ai-suggestion');
     
     // Processar texto como markdown
     // Vamos adicionar formatação básica para tornar as sugestões mais legíveis
     const formattedText = parseSuggestionMarkdown(text);
-    suggestionElement.innerHTML = formattedText;
+    suggestionElement.innerHTML = `<strong>Sugestão de Resposta:</strong><br>${formattedText}`;
     
-    suggestionsDiv.appendChild(suggestionElement);
-    suggestionsDiv.scrollTop = suggestionsDiv.scrollHeight;
+    unifiedChatDiv.appendChild(suggestionElement);
+    
+    // Garantir que a rolagem automática funcione
+    setTimeout(() => {
+        unifiedChatDiv.scrollTop = unifiedChatDiv.scrollHeight;
+    }, 100);
 }
 
 // Função para processar markdown simples nas sugestões
@@ -374,8 +381,8 @@ function addDebugPanel() {
         </div>
     `;
     
-    // Adicionar após a área de sugestões
-    document.querySelector('.suggestions-area').after(debugPanel);
+    // Adicionar após o chat unificado
+    document.querySelector('.unified-chat-container').after(debugPanel);
 }
 
 // Obter transcrição do áudio usando API do Whisper
@@ -1172,85 +1179,29 @@ async function checkAudioPermissions() {
 function adicionarEstilosMarkdown() {
     const style = document.createElement('style');
     style.textContent = `
-        .suggestion {
-            padding: 10px 15px;
-            border-radius: 8px;
-            background-color: #f8f9fa;
-            margin-bottom: 10px;
-            font-size: 14px;
-            line-height: 1.5;
+        .ai-suggestion {
             overflow-wrap: break-word;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         
-        .suggestion h1, .suggestion h2, .suggestion h3 {
+        .ai-suggestion h1, .ai-suggestion h2, .ai-suggestion h3 {
             margin-top: 0.8em;
             margin-bottom: 0.5em;
             color: #1a73e8;
             font-weight: 600;
         }
         
-        .suggestion h1 {
+        .ai-suggestion h1 {
             font-size: 1.4em;
             border-bottom: 1px solid #e1e4e8;
             padding-bottom: 0.2em;
         }
         
-        .suggestion h2 {
+        .ai-suggestion h2 {
             font-size: 1.2em;
         }
         
-        .suggestion h3 {
+        .ai-suggestion h3 {
             font-size: 1.1em;
-        }
-        
-        .suggestion strong {
-            color: #0d47a1;
-            font-weight: 600;
-        }
-        
-        .suggestion em {
-            font-style: italic;
-            color: #4a148c;
-        }
-        
-        .suggestion ul, .suggestion ol {
-            padding-left: 1.5em;
-            margin: 0.5em 0;
-        }
-        
-        .suggestion li {
-            margin-bottom: 0.3em;
-        }
-        
-        .suggestion code {
-            background-color: #f0f0f0;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-family: monospace;
-            font-size: 0.9em;
-            color: #e53935;
-        }
-        
-        .suggestion pre {
-            background-color: #272822;
-            color: #f8f8f2;
-            padding: 10px;
-            border-radius: 4px;
-            overflow-x: auto;
-            margin: 0.5em 0;
-        }
-        
-        .suggestion pre code {
-            background-color: transparent;
-            color: inherit;
-            padding: 0;
-            display: block;
-            line-height: 1.4;
-        }
-        
-        .suggestion br {
-            margin-bottom: 0.5em;
         }
     `;
     document.head.appendChild(style);
