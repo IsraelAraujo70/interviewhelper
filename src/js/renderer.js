@@ -22,6 +22,7 @@ const statusText = document.getElementById('status-text');
 const companyDisplay = document.getElementById('company-display');
 const positionDisplay = document.getElementById('position-display');
 const debugModeToggle = document.getElementById('debug-mode');
+const languageSelect = document.getElementById('language-select');
 
 // Variáveis globais
 let mediaRecorder = null;
@@ -42,7 +43,8 @@ let settings = {
     company: '',
     jobPosition: '',
     userDevice: 'default',
-    systemDevice: 'system'
+    systemDevice: 'system',
+    language: 'pt-BR'
 };
 
 // --------------------------------
@@ -108,6 +110,7 @@ function updateUIWithSettings() {
     companyNameInput.value = settings.company || '';
     jobPositionInput.value = settings.jobPosition || '';
     cvTextArea.value = settings.cv || '';
+    languageSelect.value = settings.language || 'pt-BR';
     
     companyDisplay.textContent = settings.company || 'Não definido';
     positionDisplay.textContent = settings.jobPosition || 'Não definido';
@@ -397,7 +400,7 @@ async function getTranscription(audioBlob) {
             const formData = new FormData();
             formData.append('file', audioBlob, 'audio.webm');
             formData.append('model', 'whisper-1');
-            formData.append('language', 'pt');
+            formData.append('language', settings.language.split('-')[0]); // Usar apenas o código do idioma (pt, en, es, etc)
             
             console.log("[DEBUG] FormData preparado, enviando para a API...");
             
@@ -407,7 +410,6 @@ async function getTranscription(audioBlob) {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${settings.openaiKey}`,
-                    // Não incluir 'Content-Type' aqui, o fetch o definirá automaticamente com o boundary correto
                 },
                 body: formData
             });
@@ -656,6 +658,7 @@ async function getAISuggestion(interviewerQuestion) {
         Empresa: ${settings.company}
         Cargo: ${settings.jobPosition}
         Currículo: ${settings.cv}
+        Idioma: ${settings.language}
         
         O entrevistador perguntou: "${interviewerQuestion}"
         
@@ -668,6 +671,7 @@ async function getAISuggestion(interviewerQuestion) {
         3. NÃO inclua conclusões como "Espero ter ajudado" ou "Isso esclarece sua dúvida" no final
         4. Responda diretamente como se fosse o candidato falando na primeira pessoa
         5. Não mencione que é uma sugestão ou que o candidato deve responder desta forma
+        6. A resposta DEVE ser no idioma especificado (${settings.language})
         `;
         
         // Requisição para a API da OpenAI
@@ -682,7 +686,7 @@ async function getAISuggestion(interviewerQuestion) {
                 messages: [
                     {
                         role: 'system',
-                        content: 'Você é um assistente de entrevistas de emprego. Sua tarefa é fornecer sugestões para o candidato responder a perguntas do entrevistador. Forneça apenas a resposta direta, sem mencionar "Pergunta:" ou "Resposta:" no início, e sem concluir com frases como "Espero que isso ajude". Responda como se fosse o próprio candidato falando na primeira pessoa. Use o contexto fornecido sobre a empresa, o cargo e o currículo do candidato. Estruture suas respostas usando markdown para melhor legibilidade, destacando pontos importantes em negrito, organizando em listas quando apropriado, e colocando código em blocos de código quando relevante.'
+                        content: `Você é um assistente de entrevistas de emprego. Sua tarefa é fornecer sugestões para o candidato responder a perguntas do entrevistador. Forneça apenas a resposta direta, sem mencionar "Pergunta:" ou "Resposta:" no início, e sem concluir com frases como "Espero que isso ajude". Responda como se fosse o próprio candidato falando na primeira pessoa. Use o contexto fornecido sobre a empresa, o cargo e o currículo do candidato. Estruture suas respostas usando markdown para melhor legibilidade, destacando pontos importantes em negrito, organizando em listas quando apropriado, e colocando código em blocos de código quando relevante. IMPORTANTE: Responda sempre no idioma especificado (${settings.language}).`
                     },
                     {
                         role: 'user',
@@ -789,7 +793,7 @@ function startContinuousSpeechRecognition() {
         speechRecognition = new SpeechRecognition();
         
         // Configurar o reconhecimento
-        speechRecognition.lang = 'pt-BR';
+        speechRecognition.lang = settings.language;
         speechRecognition.continuous = true;
         speechRecognition.interimResults = true;
         
@@ -887,6 +891,19 @@ function stopSpeechRecognition() {
     }
 }
 
+// Função para atualizar o idioma da entrevista
+function updateInterviewLanguage(languageCode) {
+    settings.language = languageCode;
+    
+    // Atualizar o reconhecimento de fala se estiver ativo
+    if (speechRecognition) {
+        speechRecognition.lang = languageCode;
+    }
+    
+    // Salvar configurações
+    ipcRenderer.send('save-settings', settings);
+}
+
 // --------------------------------
 // Event Listeners
 // --------------------------------
@@ -912,7 +929,8 @@ saveSettingsButton.addEventListener('click', () => {
         jobPosition: jobPositionInput.value,
         cv: cvTextArea.value,
         userDevice: micSelect.value,
-        systemDevice: systemAudioSelect.value
+        systemDevice: systemAudioSelect.value,
+        language: languageSelect.value
     };
     
     ipcRenderer.send('save-settings', settings);

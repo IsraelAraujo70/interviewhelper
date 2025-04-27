@@ -321,4 +321,28 @@ input:focus, select:focus, textarea:focus {
 .debug-toggle input[type="checkbox"] {
     width: auto;
     height: auto;
+}
+
+#language-select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+#language-select:focus {
+    outline: none;
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+}
+
+/* Estilo para o container do seletor de idioma */
+.form-group label[for="language-select"] {
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+    font-weight: 500;
 } 
