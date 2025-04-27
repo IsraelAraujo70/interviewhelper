@@ -4,7 +4,6 @@ const { ipcRenderer } = require('electron');
 // Elementos do DOM
 const tabButtons = document.querySelectorAll('.tab-btn');
 const tabContents = document.querySelectorAll('.tab-content');
-const minimizeButton = document.getElementById('minimize-btn');
 const saveSettingsButton = document.getElementById('save-settings');
 const testAudioButton = document.getElementById('test-audio');
 const startInterviewButton = document.getElementById('start-interview');
@@ -23,6 +22,8 @@ const companyDisplay = document.getElementById('company-display');
 const positionDisplay = document.getElementById('position-display');
 const debugModeToggle = document.getElementById('debug-mode');
 const languageSelect = document.getElementById('language-select');
+const minimizeWindowButton = document.getElementById('minimize-window');
+const closeWindowButton = document.getElementById('close-window');
 
 // Variáveis globais
 let mediaRecorder = null;
@@ -908,11 +909,6 @@ function updateInterviewLanguage(languageCode) {
 // Event Listeners
 // --------------------------------
 
-// Botão de minimizar
-minimizeButton.addEventListener('click', () => {
-    ipcRenderer.send('minimize-to-tray');
-});
-
 // Alternar entre abas
 tabButtons.forEach(button => {
     button.addEventListener('click', () => {
@@ -1001,6 +997,15 @@ debugModeToggle.addEventListener('change', () => {
             existingPanel.remove();
         }
     }
+});
+
+// Event Listeners para botões da barra de título
+minimizeWindowButton.addEventListener('click', () => {
+    ipcRenderer.send('minimize-window');
+});
+
+closeWindowButton.addEventListener('click', () => {
+    ipcRenderer.send('close-window');
 });
 
 // --------------------------------

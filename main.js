@@ -27,7 +27,15 @@ function createWindow() {
     },
     icon: path.join(__dirname, 'assets/icon.png'),
     show: true, // Mostrar ao iniciar
+    skipTaskbar: true, // Não mostrar na barra de tarefas
+    alwaysOnTop: true, // Manter sempre no topo
+    frame: false, // Remover a barra de título
+    type: 'toolbar', // Tipo especial que não aparece no Alt+Tab
   });
+
+  // Definir posição inicial (exemplo: canto superior direito)
+  const { width: screenWidth } = require('electron').screen.getPrimaryDisplay().workAreaSize;
+  mainWindow.setPosition(screenWidth - 800, 0);
 
   log('Carregando arquivo HTML...');
   // Carregar o arquivo HTML principal
@@ -180,4 +188,15 @@ ipcMain.on('request-desktop-capturer', (event) => {
     log(`Erro ao obter fontes do desktopCapturer: ${error}`);
     event.reply('desktop-capturer-sources', []);
   });
+});
+
+// Manipulação de eventos de comunicação entre processos (IPC)
+ipcMain.on('minimize-window', () => {
+  log('Minimizando janela');
+  mainWindow.minimize();
+});
+
+ipcMain.on('close-window', () => {
+  log('Fechando janela');
+  mainWindow.hide();
 }); 
