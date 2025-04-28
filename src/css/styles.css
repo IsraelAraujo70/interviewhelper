@@ -178,7 +178,8 @@ input:focus, select:focus, textarea:focus {
     margin-bottom: 20px;
     position: sticky;
     top: 0;
-    z-index: 10;
+    z-index: 100;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .status-info {
@@ -423,6 +424,10 @@ input:focus, select:focus, textarea:focus {
     justify-content: space-between;
     align-items: center;
     padding: 0 10px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .titlebar-buttons {

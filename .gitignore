@@ -1,4 +1,7 @@
 node_modules
 package-lock.json
 app.log
+dist
 
+# Electron builder cache
+electron-builder-cache
