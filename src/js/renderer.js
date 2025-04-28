@@ -36,6 +36,10 @@ let transcription = '';
 // Ativar modo debug por padrão para ajudar na resolução do problema
 let isDebugMode = true;
 
+// Variáveis para controle de requisições repetidas
+let lastRequestTime = 0;
+const REQUEST_COOLDOWN = 5000; // 5 segundos entre solicitações
+
 // Configurações do usuário
 let settings = {
     openaiKey: '',
@@ -195,6 +199,28 @@ async function startRecording() {
     try {
         console.log("[DEBUG] Iniciando gravação de áudio...");
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Detectar o sistema operacional
+        const isLinux = navigator.userAgent.indexOf("Linux") !== -1;
+        console.log(`[DEBUG] Sistema operacional: ${isLinux ? 'Linux' : 'Não Linux'}`);
+        
+        // Verificar se já fizemos uma solicitação recentemente (evitar spam de solicitações)
+        const now = Date.now();
+        if (now - lastRequestTime < REQUEST_COOLDOWN) {
+            console.log("[DEBUG] Aguardando cooldown entre solicitações...");
+            statusText.textContent = 'Processando solicitação anterior...';
+            return false;
+        }
+        
+        lastRequestTime = now;
+        
+        if (isLinux) {
+            // No Linux, vamos direto para o método do desktopCapturer para evitar o diálogo de seleção
+            console.log("[DEBUG] Usando método desktopCapturer no Linux");
+            statusText.textContent = 'Solicitando permissões...';
+            ipcRenderer.send('request-desktop-capturer');
+            return true;
+        }
         
         // Usar getDisplayMedia para capturar áudio do sistema sem eco
         // Esta API é mais moderna e tem melhor tratamento de áudio
@@ -1041,35 +1067,49 @@ ipcRenderer.on('desktop-capturer-sources', async (event, sources) => {
             throw new Error('Nenhuma fonte disponível para captura');
         }
         
-        // Perguntar ao usuário qual janela/tela quer capturar
-        // Em uma implementação completa, você mostraria uma UI para seleção
-        // Aqui estamos usando a primeira fonte disponível para simplificar
+        // No Linux, o main.js já deve ter selecionado a melhor fonte,
+        // então usamos a primeira recebida sem pedir ao usuário
         const source = sources[0];
-        console.log(`[DEBUG] Usando fonte: ${source.name}`);
+        console.log(`[DEBUG] Usando fonte automaticamente: ${source.name}`);
         
-        // Configurar stream usando o desktopCapturer como fallback
-        const stream = await navigator.mediaDevices.getUserMedia({
-            audio: {
-                mandatory: {
-                    chromeMediaSource: 'desktop',
-                    // Usar apenas o áudio do sistema, não o microfone
-                    // Isso deve reduzir o eco
-                    chromeMediaSourceId: source.id
+        // Configurar stream com constraints modernas para Linux
+        let stream;
+        try {
+            // Primeiro tente o método moderno com getUserMedia
+            stream = await navigator.mediaDevices.getUserMedia({
+                audio: {
+                    // Especificando que queremos capturar o áudio do sistema
+                    // e não o microfone
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true
+                },
+                video: false // Sem vídeo para simplicidade
+            });
+        } catch (err) {
+            console.log('[DEBUG] Método moderno falhou, tentando método Electron específico');
+            
+            // Se falhar, tente o método específico do Electron
+            stream = await navigator.mediaDevices.getUserMedia({
+                audio: {
+                    mandatory: {
+                        chromeMediaSource: 'desktop',
+                        chromeMediaSourceId: source.id
+                    }
+                },
+                video: {
+                    mandatory: {
+                        chromeMediaSource: 'desktop',
+                        chromeMediaSourceId: source.id,
+                        minWidth: 1,
+                        maxWidth: 1,
+                        minHeight: 1,
+                        maxHeight: 1,
+                        maxFrameRate: 1
+                    }
                 }
-            },
-            video: {
-                mandatory: {
-                    chromeMediaSource: 'desktop',
-                    chromeMediaSourceId: source.id,
-                    // Vídeo mínimo apenas para funcionar
-                    minWidth: 1,
-                    maxWidth: 1,
-                    minHeight: 1,
-                    maxHeight: 1,
-                    maxFrameRate: 1
-                }
-            }
-        });
+            });
+        }
         
         // O resto do processo é igual ao método principal
         if (isDebugMode) {

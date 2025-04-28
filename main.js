@@ -61,8 +61,8 @@ function createWindow() {
     }).then(sources => {
       log(`Encontradas ${sources.length} fontes para captura`);
       
-      // Idealmente, apresentaria uma UI para o usuário escolher a fonte
-      // Aqui, estamos simplesmente concedendo acesso à primeira fonte
+      // No Linux, selecione automaticamente a primeira fonte disponível
+      // Em vez de mostrar o seletor do sistema
       if (sources.length > 0) {
         // 'loopback' captura apenas o áudio do sistema, não o microfone
         // isso evita o problema de eco
@@ -81,7 +81,7 @@ function createWindow() {
       callback(error);
     });
   }, {
-    // Não usar o seletor do sistema, para termos mais controle
+    // Não usar o seletor do sistema no Linux, para evitar o diálogo repetitivo
     useSystemPicker: false
   });
 
@@ -182,8 +182,24 @@ ipcMain.on('request-desktop-capturer', (event) => {
     fetchWindowIcons: true
   }).then(sources => {
     log(`Encontradas ${sources.length} fontes para captura`);
-    // Enviar as fontes para o processo de renderização
-    event.reply('desktop-capturer-sources', sources);
+    
+    // No Linux, queremos selecionar a Tela inteira ou primeira fonte sem perguntar
+    const screenSource = sources.find(source => 
+      source.name === 'Tela inteira' || 
+      source.name === 'Entire screen' || 
+      source.name === 'Screen 1' || 
+      source.name.includes('screen')
+    );
+    
+    // Se encontrou uma fonte específica de tela, envie apenas ela
+    if (screenSource) {
+      log(`Selecionando automaticamente a fonte: ${screenSource.name}`);
+      event.reply('desktop-capturer-sources', [screenSource]);
+    } else {
+      // Caso contrário, envie todas as fontes
+      log('Enviando todas as fontes disponíveis');
+      event.reply('desktop-capturer-sources', sources);
+    }
   }).catch(error => {
     log(`Erro ao obter fontes do desktopCapturer: ${error}`);
     event.reply('desktop-capturer-sources', []);
@@ -193,10 +209,10 @@ ipcMain.on('request-desktop-capturer', (event) => {
 // Manipulação de eventos de comunicação entre processos (IPC)
 ipcMain.on('minimize-window', () => {
   log('Minimizando janela');
-  mainWindow.minimize();
+  mainWindow.hide();
 });
 
 ipcMain.on('close-window', () => {
   log('Fechando janela');
-  mainWindow.hide();
+  mainWindow.close();
 }); 
